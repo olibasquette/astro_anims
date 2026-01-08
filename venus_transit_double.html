@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Double Venus Transit</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+
+        .container {
+            position: relative;
+            width: 600px;
+            height: 600px;
+        }
+
+        /* LAYER 1: GEOMETRY & PHYSICS */
+        .geometry-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            filter: blur(6px) contrast(20); 
+            z-index: 1;
+        }
+
+        .sun-shape {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+
+        /* Common Venus Style */
+        .venus-shape {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 25px;
+            height: 25px;
+            background-color: #000;
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .venus-upper {
+            animation: transit-upper 15s linear infinite;
+        }
+
+        .venus-lower {
+            animation: transit-lower 15s linear infinite;
+        }
+
+        /* LAYER 2: COLOR & LIMB DARKENING */
+        .color-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            mix-blend-mode: multiply;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sun-gradient {
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(
+                circle, 
+                #fff5cc 0%,
+                #ffcc00 40%,
+                #ff8800 70%,
+                #cc4400 90%,
+                #882200 100%
+            );
+        }
+
+        /* Animation Keyframes */
+        @keyframes transit-upper {
+            0% { transform: translate(-300px, 30px); }
+            100% { transform: translate(300px, 30px); }
+        }
+
+        @keyframes transit-lower {
+            0% { transform: translate(-300px, 80px); }
+            100% { transform: translate(300px, 80px); }
+        }
+
+        .label {
+            position: absolute;
+            bottom: 20px;
+            color: #444;
+            text-align: center;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        /* Path Lines */
+        .path-line {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 1px;
+            border-bottom: 2px dashed rgba(0, 0, 0, 0.5);
+            z-index: 3;
+        }
+
+        .path-upper {
+            transform: translate(-50%, 42px);
+        }
+
+        .path-lower {
+            transform: translate(-50%, 92px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Layer 1: Geometry -->
+        <div class="geometry-layer">
+            <div class="sun-shape"></div>
+            <!-- Two copies of Venus -->
+            <div class="venus-shape venus-upper"></div>
+            <div class="venus-shape venus-lower"></div>
+        </div>
+
+        <!-- Layer 2: Color -->
+        <div class="color-layer">
+            <div class="sun-gradient"></div>
+        </div>
+        
+        <!-- Layer 3: Paths -->
+        <div class="path-line path-upper"></div>
+        <div class="path-line path-lower"></div>
+    </div>
+    <div class="label">Double Venus Transit Simulation</div>
+</body>
+</html>
