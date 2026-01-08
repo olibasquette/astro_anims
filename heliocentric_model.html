@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copernican Heliocentric Model</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0b0b;
+            color: #aaa;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .system-container {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            /* Zoom out slightly if needed */
+            transform: scale(0.9);
+        }
+
+        /* 
+           Orbit Containers (Carriers)
+           In this model, these represent the actual orbits around the Sun.
+        */
+        .orbit-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.35); /* Visible Orbit Track */
+        }
+
+        /* Generic Planet Style */
+        .planet {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            box-shadow: 0 0 5px currentColor;
+        }
+
+        /* --- Celestial Bodies --- */
+
+        /* Sun (Center) */
+        .sun {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            background-color: #f39c12;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 30px #f39c12;
+        }
+
+        /* 1. Mercury System */
+        .orbit-container.mercury-orbit {
+            width: 100px;
+            height: 100px;
+            animation: spin 2.9s linear infinite;
+        }
+        .planet.mercury {
+            width: 6px;
+            height: 6px;
+            background-color: #a5a5a5;
+            color: #a5a5a5;
+        }
+
+        /* 2. Venus System */
+        .orbit-container.venus-orbit {
+            width: 160px;
+            height: 160px;
+            animation: spin 7.4s linear infinite;
+        }
+        .planet.venus {
+            width: 10px;
+            height: 10px;
+            background-color: #f1c40f;
+            color: #f1c40f;
+        }
+
+        /* 3. Earth System */
+        .orbit-container.earth-orbit {
+            width: 240px;
+            height: 240px;
+            animation: spin 12s linear infinite;
+        }
+        .planet.earth {
+            width: 14px;
+            height: 14px;
+            background-color: #2e86de;
+            color: #2e86de;
+            /* Earth needs to be a container for the moon too */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Moon (sub-system) */
+        .moon-orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 34px;
+            height: 34px;
+            border: 1px dotted rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: spin 1s linear infinite; /* Moon orbits Earth */
+        }
+        .planet.moon {
+            width: 4px;
+            height: 4px;
+            background-color: #ccc;
+            top: 0; left: 50%;
+            box-shadow: none;
+        }
+
+
+        /* 4. Mars System */
+        .orbit-container.mars-orbit {
+            width: 340px;
+            height: 340px;
+            animation: spin 22.6s linear infinite;
+        }
+        .planet.mars {
+            width: 12px;
+            height: 12px;
+            background-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        /* 5. Jupiter System */
+        .orbit-container.jupiter-orbit {
+            width: 500px;
+            height: 500px;
+            animation: spin 50s linear infinite; /* Scaled down for visual patience */
+        }
+        .planet.jupiter {
+            width: 18px;
+            height: 18px;
+            background-color: #d35400;
+            color: #d35400;
+        }
+
+        /* 6. Saturn System */
+        .orbit-container.saturn-orbit {
+            width: 680px;
+            height: 680px;
+            animation: spin 80s linear infinite;
+        }
+        .planet.saturn {
+            width: 16px;
+            height: 16px;
+            background-color: #f1c40f;
+            color: #f1c40f;
+            border: 4px solid rgba(255, 255, 255, 0.3); /* Rings */
+        }
+
+
+        @keyframes spin {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .labels {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            text-align: right;
+            line-height: 1.5;
+            font-size: 0.85rem;
+        }
+        h1 {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            margin: 0;
+            font-weight: 300;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Copernican System</h1>
+    <div class="system-container">
+        
+        <!-- Center -->
+        <div class="sun"></div>
+
+        <!-- 1. Mercury -->
+        <div class="orbit-container mercury-orbit">
+            <div class="planet mercury"></div>
+        </div>
+
+        <!-- 2. Venus -->
+        <div class="orbit-container venus-orbit">
+            <div class="planet venus"></div>
+        </div>
+
+        <!-- 3. Earth & Moon -->
+        <div class="orbit-container earth-orbit">
+            <div class="planet earth">
+                <div class="moon-orbit">
+                    <div class="planet moon"></div>    
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Mars -->
+        <div class="orbit-container mars-orbit">
+            <div class="planet mars"></div>
+        </div>
+
+        <!-- 5. Jupiter -->
+        <div class="orbit-container jupiter-orbit">
+            <div class="planet jupiter"></div>
+        </div>
+
+        <!-- 6. Saturn -->
+        <div class="orbit-container saturn-orbit">
+            <div class="planet saturn"></div>
+        </div>
+
+    </div>
+
+    <div class="labels">
+        <div style="color: #f39c12">Sun</div>
+        <div style="color: #a5a5a5">Mercury</div>
+        <div style="color: #f1c40f">Venus</div>
+        <div style="color: #2e86de">Earth</div>
+        <div style="color: #e74c3c">Mars</div>
+        <div style="color: #d35400">Jupiter</div>
+        <div style="color: #f1c40f">Saturn</div>
+    </div>
+</body>
+</html>

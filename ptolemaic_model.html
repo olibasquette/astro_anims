@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ptolemaic Geocentric Model</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0b0b;
+            color: #aaa;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .system-container {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            /* Zoom out slightly if needed */
+            transform: scale(0.9);
+        }
+
+        /* Common Orbit Styles */
+        .orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 2px dashed rgba(255, 255, 255, 0.35);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        /* 
+           The Carrier concept:
+           A div that rotates around the center (Earth).
+           It carries the epicycle center.
+        */
+        .carrier {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            /* Border purely for visualizing the deferent circle */
+            border: 2px solid rgba(255, 255, 255, 0.3); 
+        }
+
+        /* 
+           The Epicycle Container:
+           Positioned on the edge of the carrier.
+           For a simplistic CSS approach, we can just put a child div 
+           at "top: 0; left: 50%" inside the rotating carrier.
+           However, to handle the rotation of the epicycle itself properly, 
+           this child will have its own animation.
+        */
+        .epicycle-center {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Center strictly on the line */
+            border: 2px dotted rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+
+        .planet {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            box-shadow: 0 0 5px currentColor;
+        }
+
+        /* --- Celestial Bodies --- */
+
+        /* Earth */
+        .earth {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background-color: #2e86de;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 8px #2e86de;
+        }
+
+        /* Moon System */
+        .carrier.moon-orbit {
+            width: 80px;
+            height: 80px;
+            animation: spin 3s linear infinite;
+        }
+        .planet.moon {
+            width: 6px;
+            height: 6px;
+            background-color: #ccc;
+            /* No epicycle for moon in this simplified view */
+            top: 0; left: 50%;
+        }
+
+        /* Mercury System */
+        /* Moves with Sun (12s), Fast Epicycle */
+        .carrier.mercury-deferent {
+            width: 140px;
+            height: 140px;
+            animation: spin 12s linear infinite;
+        }
+        .epicycle-center.mercury-epi {
+            width: 40px;
+            height: 40px;
+            animation: spin 4s linear infinite;
+            animation-delay: -1.2s; /* Offset start position */
+        }
+        .planet.mercury {
+            width: 6px;
+            height: 6px;
+            background-color: #a5a5a5;
+            color: #a5a5a5;
+        }
+
+        /* Venus System */
+        /* Moves with Sun (12s), Medium Epicycle */
+        .carrier.venus-deferent {
+            width: 220px;
+            height: 220px;
+            animation: spin 12s linear infinite;
+        }
+        .epicycle-center.venus-epi {
+            width: 60px;
+            height: 60px;
+            animation: spin 7.5s linear infinite;
+            animation-delay: -3.5s; /* Offset start position */
+        }
+        .planet.venus {
+            width: 10px;
+            height: 10px;
+            background-color: #f1c40f;
+            color: #f1c40f;
+        }
+
+        /* Sun System */
+        .carrier.sun-orbit {
+            width: 320px;
+            height: 320px;
+            animation: spin 12s linear infinite;
+            border-color: rgba(255, 200, 0, 0.5);
+        }
+        .planet.sun {
+            width: 24px;
+            height: 24px;
+            background-color: #f39c12;
+            box-shadow: 0 0 20px #f39c12;
+            top: 0; left: 50%;
+        }
+
+        /* Mars System */
+        /* Slower Deferent, Epicycle synced to Sun (12s) */
+        .carrier.mars-deferent {
+            width: 420px;
+            height: 420px;
+            animation: spin 22s linear infinite;
+        }
+        .epicycle-center.mars-epi {
+            width: 80px;
+            height: 80px;
+            animation: spin 12s linear infinite; 
+            /* Note: For outer planets, the radius vector of the epicycle 
+               stays parallel to Earth-Sun line. 
+               Animation timing is tricky here without JS, 
+               but giving it the Sun's period (12s) creates the correct retrograde effect visually. */
+        }
+        .planet.mars {
+            width: 12px;
+            height: 12px;
+            background-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        /* Jupiter System */
+        .carrier.jupiter-deferent {
+            width: 580px;
+            height: 580px;
+            animation: spin 50s linear infinite;
+        }
+        .epicycle-center.jupiter-epi {
+            width: 60px;
+            height: 60px;
+            animation: spin 12s linear infinite;
+        }
+        .planet.jupiter {
+            width: 18px;
+            height: 18px;
+            background-color: #d35400;
+            color: #d35400;
+        }
+
+        /* Saturn System */
+        .carrier.saturn-deferent {
+            width: 720px;
+            height: 720px;
+            animation: spin 80s linear infinite;
+        }
+        .epicycle-center.saturn-epi {
+            width: 40px;
+            height: 40px;
+            animation: spin 12s linear infinite;
+        }
+        .planet.saturn {
+            width: 14px;
+            height: 14px;
+            background-color: #f1c40f;
+            color: #f1c40f;
+            border: 4px solid rgba(255, 255, 255, 0.3); /* Rings hint */
+        }
+
+
+        @keyframes spin {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* 
+           Override spin for Epicycles:
+           Epicycles are inside Carriers. 
+           Carrier uses translate(-50%, -50%).
+           Epicycle is at specific position. 
+           We need a simple rotate animation for the epicycle center that doesn't mess up its position.
+        */
+        @keyframes spin-epicycle {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        /* Adjusting animations for epicycle centers */
+        .epicycle-center {
+            /* They are children of the carrier.
+               The carrier rotates. 
+               The epicycle center sits at top:0 left:50% of the carrier.
+               To spin the epicycle *itself* (around its own center), 
+               we just rotate this div.
+            */
+            animation-name: spin-epicycle !important;
+        }
+
+
+        .labels {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            text-align: right;
+            line-height: 1.5;
+            font-size: 0.85rem;
+        }
+        h1 {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            margin: 0;
+            font-weight: 300;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ptolemaic System</h1>
+    <div class="system-container">
+        
+        <!-- Center -->
+        <div class="earth"></div>
+
+        <!-- 1. Moon -->
+        <div class="carrier moon-orbit">
+            <div class="planet moon"></div>
+        </div>
+
+        <!-- 2. Mercury -->
+        <div class="carrier mercury-deferent">
+            <div class="epicycle-center mercury-epi">
+                <div class="planet mercury"></div>
+            </div>
+        </div>
+
+        <!-- 3. Venus -->
+        <div class="carrier venus-deferent">
+            <div class="epicycle-center venus-epi">
+                <div class="planet venus"></div>
+            </div>
+        </div>
+
+        <!-- 4. Sun -->
+        <div class="carrier sun-orbit">
+            <div class="planet sun"></div>
+        </div>
+
+        <!-- 5. Mars -->
+        <div class="carrier mars-deferent">
+            <div class="epicycle-center mars-epi">
+                <div class="planet mars"></div>
+            </div>
+        </div>
+
+        <!-- 6. Jupiter -->
+        <div class="carrier jupiter-deferent">
+            <div class="epicycle-center jupiter-epi">
+                <div class="planet jupiter"></div>
+            </div>
+        </div>
+
+        <!-- 7. Saturn -->
+        <div class="carrier saturn-deferent">
+            <div class="epicycle-center saturn-epi">
+                <div class="planet saturn"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="labels">
+        <div style="color: #ccc">Moon</div>
+        <div style="color: #a5a5a5">Mercury</div>
+        <div style="color: #f1c40f">Venus</div>
+        <div style="color: #f39c12">Sun</div>
+        <div style="color: #e74c3c">Mars</div>
+        <div style="color: #d35400">Jupiter</div>
+        <div style="color: #f1c40f">Saturn</div>
+    </div>
+</body>
+</html>
