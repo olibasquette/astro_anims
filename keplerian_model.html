@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keplerian Heliocentric Model</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0b0b;
+            color: #aaa;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            margin: 0;
+            font-weight: 300;
+            color: #fff;
+        }
+
+        .labels {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            text-align: right;
+            line-height: 1.5;
+            font-size: 0.85rem;
+        }
+
+        .system-container {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            transform: scale(0.9);
+        }
+
+        /* Sun at Center */
+        .sun {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            background-color: #f39c12;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 35px #f39c12;
+        }
+
+        /* 
+           Ellipse Logic:
+           We want the Sun at the focus.
+           Center of Ellipse is (0,0) relative to its container.
+           Focus is at (-c, 0).
+           We position the container such that the Focus coincides with the Screen Center.
+           Screen Center = 50% 50%.
+           So Orbit Center = left: calc(50% + c).
+        */
+
+        .orbit-group {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            /* Left will be set by inline style for offset */
+        }
+
+        .orbit-visual {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            box-sizing: border-box;
+            /* Width/Height set inline */
+        }
+
+        .orbit-motion {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            /* Helper to squash the circular motion into an ellipse */
+        }
+        
+        .rotator {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            /* Use cubic-bezier to simulate orbital mechanics: slower at aphelion (start/end), faster at perihelion (middle) */
+            animation: spin cubic-bezier(0.5, 0.2, 0.5, 0.8) infinite;
+        }
+
+        .counter-rotator {
+            position: absolute;
+            top: 0; 
+            left: 50%;
+            /* transform managed by animation to maintain center w/ counter-rotation */
+            animation: counter-spin cubic-bezier(0.5, 0.2, 0.5, 0.8) infinite;
+            animation-duration: var(--dur);
+        }
+
+        .planet {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 0 4px currentColor;
+        }
+
+        @keyframes spin {
+            from { transform: translate(-50%, -50%) rotate(90deg); }
+            to { transform: translate(-50%, -50%) rotate(450deg); }
+        }
+
+        @keyframes counter-spin {
+            from { transform: translate(-50%, -50%) rotate(-90deg); }
+            to { transform: translate(-50%, -50%) rotate(-450deg); }
+        }
+
+        /* 
+           Specific Planet Configs 
+           Using CSS Variables or just specific classes. 
+           Let's use specific classes for clarity.
+           
+           Eccentricity simulation:
+           We'll use varied eccentricities, exaggerated for visibility.
+           e ~ 0.3 to 0.5.
+           c = a * e.
+           b = a * sqrt(1 - e^2).
+           
+           offset-x = c.
+        */
+
+        /* Mercury: a=60, e=0.4. c=24. b=55. */
+        .mercury-pos { left: calc(50% + 24px); }
+        .mercury-visual { width: 120px; height: 110px; }
+        .mercury-motion { width: 120px; height: 110px; } /* Defines the bounding box for squash? */
+        /* Actually better: .orbit-motion gets scaleY(b/a). .rotator gets width=2a. */
+        
+        /* Revised approach for cleaner CSS: use variables in inline styles? 
+           No, the prompt requested CSS. I'll stick to classes.
+        */
+        
+        /* Mercury */
+        .mercury-setup {
+            --a: 120px;
+            --b: 96px; /* 0.8 ratio */
+            --c: 36px; /* rough cosmetic offset */
+            --dur: 3s;
+        }
+        
+        /* Venus */
+        .venus-setup {
+            --a: 190px;
+            --b: 170px;
+            --c: 40px;
+            --dur: 7.5s;
+        }
+
+        /* Earth */
+        .earth-setup {
+            --a: 280px;
+            --b: 240px; 
+            --c: 70px; 
+            --dur: 12s;
+        }
+
+        /* Mars */
+        .mars-setup {
+            --a: 380px;
+            --b: 300px; /* More eccentric */
+            --c: 110px; 
+            --dur: 22s;
+        }
+
+        /* Jupiter */
+        .jupiter-setup {
+            --a: 560px;
+            --b: 520px; 
+            --c: 100px; 
+            --dur: 60s;
+        }
+
+        /* Saturn */
+        .saturn-setup {
+            --a: 740px;
+            --b: 660px; 
+            --c: 160px; 
+            --dur: 100s;
+        }
+
+        /* Applied Styles based on variables */
+        /* Note: CSS variables need to be on the specific element or inherited. */
+        
+        .orbit-group {
+            left: calc(50% + var(--c));
+        }
+
+        .orbit-visual {
+            width: var(--a);
+            height: var(--b);
+        }
+
+        /* 
+           Motion:
+           Container is centered on ellipse center.
+           We want to simulate moving on the ellipse.
+           We spin a circle of Diameter = A.
+           We squash the container by B/A.
+           We un-squash the planet by A/B.
+        */
+        .orbit-motion {
+            width: var(--a);
+            /* height doesn't matter much if we just scale, but let's match visual */
+            height: var(--b); 
+        }
+
+        .squasher {
+            width: 100%; height: 100%;
+            /* scale Y by B/A. We can use calc? No, calc(var(--b) / var(--a)) works in modern, but let's just use CSS vars for the factor */
+        }
+        
+        .rotator {
+            width: var(--a);
+            height: var(--a);
+            animation-duration: var(--dur);
+        }
+
+        /* Implementation without complex calc in CSS: specific classes for scaling factors */
+
+        /* Mercury */
+        .mercury-squash { transform: scaleY(0.8); }
+        .mercury-unsquash .planet { transform: scaleY(1.25); } 
+        .p-mercury { width: 6px; height: 6px; background-color: #a5a5a5; color: #a5a5a5; }
+
+        /* Venus */
+        .venus-squash { transform: scaleY(0.89); }
+        .venus-unsquash .planet { transform: scaleY(1.12); }
+        .p-venus { width: 10px; height: 10px; background-color: #f1c40f; color: #f1c40f; }
+
+        /* Earth */
+        .earth-squash { transform: scaleY(0.85); }
+        .earth-unsquash .planet { transform: scaleY(1.17); }
+        .p-earth { width: 18px; height: 18px; background-color: #2e86de; color: #2e86de; }
+
+        /* Mars */
+        .mars-squash { transform: scaleY(0.79); }
+        .mars-unsquash .planet { transform: scaleY(1.26); }
+        .p-mars { width: 12px; height: 12px; background-color: #e74c3c; color: #e74c3c; }
+
+        /* Jupiter */
+        .jupiter-squash { transform: scaleY(0.93); }
+        .jupiter-unsquash .planet { transform: scaleY(1.07); }
+        .p-jupiter { width: 20px; height: 20px; background-color: #d35400; color: #d35400; }
+
+        /* Saturn */
+        .saturn-squash { transform: scaleY(0.89); }
+        .saturn-unsquash .planet { transform: scaleY(1.12); }
+        .p-saturn { width: 16px; height: 16px; background-color: #f1c40f; color: #f1c40f; border: 3px solid rgba(255,255,255,0.3); }
+
+        /* Z-Index mangement: Sun on top of bg, Orbits below Sun? Usually orbits are behind Sun. */
+        .orbit-visual { z-index: 1; }
+        .sun { z-index: 5; }
+        .planet { z-index: 6; }
+
+    </style>
+</head>
+<body>
+    <h1>Keplerian Model</h1>
+    <div class="labels">
+        <p>Planets orbit in ellipses with the Sun at one focus.<br>(Eccentricities exaggerated for visualization)</p>
+    </div>
+
+    <div class="system-container">
+        <!-- Sun -->
+        <div class="sun"></div>
+
+        <!-- Mercury -->
+        <div class="orbit-group mercury-setup">
+            <div class="orbit-visual"></div>
+            <div class="orbit-motion">
+                <div class="squasher mercury-squash">
+                    <div class="rotator">
+                        <div class="counter-rotator mercury-unsquash">
+                            <div class="planet p-mercury"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Venus -->
+        <div class="orbit-group venus-setup">
+            <div class="orbit-visual"></div>
+            <div class="orbit-motion">
+                <div class="squasher venus-squash">
+                    <div class="rotator">
+                        <div class="counter-rotator venus-unsquash">
+                            <div class="planet p-venus"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Earth -->
+        <div class="orbit-group earth-setup">
+            <div class="orbit-visual"></div>
+            <div class="orbit-motion">
+                <div class="squasher earth-squash">
+                    <div class="rotator">
+                        <div class="counter-rotator earth-unsquash">
+                            <div class="planet p-earth"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mars -->
+        <div class="orbit-group mars-setup">
+            <div class="orbit-visual"></div>
+            <div class="orbit-motion">
+                <div class="squasher mars-squash">
+                    <div class="rotator">
+                        <div class="counter-rotator mars-unsquash">
+                            <div class="planet p-mars"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jupiter -->
+        <div class="orbit-group jupiter-setup">
+            <div class="orbit-visual"></div>
+            <div class="orbit-motion">
+                <div class="squasher jupiter-squash">
+                    <div class="rotator">
+                        <div class="counter-rotator jupiter-unsquash">
+                            <div class="planet p-jupiter"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Saturn -->
+        <div class="orbit-group saturn-setup">
+            <div class="orbit-visual"></div>
+            <div class="orbit-motion">
+                <div class="squasher saturn-squash">
+                    <div class="rotator">
+                        <div class="counter-rotator saturn-unsquash">
+                            <div class="planet p-saturn"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

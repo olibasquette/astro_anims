@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copernican Heliocentric Model</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0b0b;
+            color: #aaa;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            margin: 0;
+            font-weight: 300;
+            color: #fff;
+        }
+
+        .labels {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            text-align: right;
+            line-height: 1.5;
+            font-size: 0.85rem;
+        }
+
+        .system-container {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            transform: scale(0.9);
+        }
+
+        /* Sun at Center */
+        .sun-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            background-color: #f39c12;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 35px #f39c12;
+        }
+
+        /* 
+           Orbits (Deferents) 
+           Concentric circles around the Sun
+        */
+        .carrier {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-sizing: border-box;
+        }
+
+        /* 
+           Epicycles
+           Small circles carried by the main orbit
+        */
+        .epicycle-center {
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px dotted rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+
+        /* Planets */
+        .planet {
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            box-shadow: 0 0 4px currentColor;
+        }
+
+        /* Animations */
+        @keyframes spin {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Rotate for epicycles/moons to preserve centering */
+        @keyframes spin-local {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+
+        /* --- Mercury --- */
+        .carrier.mercury {
+            width: 100px; height: 100px;
+            animation: spin 3s linear infinite;
+        }
+        .epicycle-center.mercury {
+            width: 16px; height: 16px;
+            animation: spin-local 1.5s linear infinite;
+        }
+        .planet.mercury {
+            width: 6px; height: 6px;
+            background-color: #a5a5a5;
+            color: #a5a5a5;
+        }
+
+        /* --- Venus --- */
+        .carrier.venus {
+            width: 160px; height: 160px;
+            animation: spin 7.5s linear infinite;
+            animation-delay: -2s;
+        }
+        .epicycle-center.venus {
+            width: 20px; height: 20px;
+            animation: spin-local 2.5s linear infinite;
+        }
+        .planet.venus {
+            width: 10px; height: 10px;
+            background-color: #f1c40f;
+            color: #f1c40f;
+        }
+
+        /* --- Earth --- */
+        .carrier.earth {
+            width: 240px; height: 240px;
+            animation: spin 12s linear infinite;
+            animation-delay: -5s;
+        }
+        .epicycle-center.earth {
+            width: 24px; height: 24px;
+            animation: spin-local 4s linear infinite; /* Small corrective epicycle */
+        }
+        .planet.earth {
+            width: 18px; height: 18px;
+            background-color: #2e86de;
+            color: #2e86de;
+            /* Container for Moon */
+        }
+        
+        /* Moon System */
+        /* The Moon circles the Earth. 
+           We place a container centered on Earth that spins.
+           Moon is at the edge of that container.
+        */
+        .moon-orbit {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 40px; height: 40px;
+            transform: translate(-50%, -50%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: spin-local 1.2s linear infinite; /* 1 month approx */
+        }
+        .moon {
+            position: absolute;
+            top: -1px; left: 50%;
+            width: 5px; height: 5px;
+            background-color: #ddd;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+        }
+
+        /* --- Mars --- */
+        .carrier.mars {
+            width: 340px; height: 340px;
+            animation: spin 22s linear infinite;
+            animation-delay: -10s;
+        }
+        .epicycle-center.mars {
+            width: 28px; height: 28px;
+            animation: spin-local 5s linear infinite;
+        }
+        .planet.mars {
+            width: 12px; height: 12px;
+            background-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        /* --- Jupiter --- */
+        .carrier.jupiter {
+            width: 500px; height: 500px;
+            animation: spin 60s linear infinite;
+            animation-delay: -15s;
+        }
+        .epicycle-center.jupiter {
+            width: 32px; height: 32px;
+            animation: spin-local 8s linear infinite;
+        }
+        .planet.jupiter {
+            width: 20px; height: 20px;
+            background-color: #d35400;
+            color: #d35400;
+        }
+
+        /* --- Saturn --- */
+        .carrier.saturn {
+            width: 680px; height: 680px;
+            animation: spin 100s linear infinite;
+            animation-delay: -30s;
+        }
+        .epicycle-center.saturn {
+            width: 30px; height: 30px;
+            animation: spin-local 10s linear infinite;
+        }
+        .planet.saturn {
+            width: 16px; height: 16px;
+            background-color: #f1c40f;
+            color: #f1c40f;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Copernican Heliocentric Model</h1>
+    <div class="labels">
+        <p>Small epicycles (epicyclets) correct<br>orbital eccentricities.</p>
+    </div>
+    
+    <div class="system-container">
+        
+        <!-- Sun -->
+        <div class="sun-center"></div>
+
+        <!-- Mercury -->
+        <div class="carrier mercury">
+            <div class="epicycle-center mercury">
+                <div class="planet mercury"></div>
+            </div>
+        </div>
+
+        <!-- Venus -->
+        <div class="carrier venus">
+            <div class="epicycle-center venus">
+                <div class="planet venus"></div>
+            </div>
+        </div>
+
+        <!-- Earth System -->
+        <div class="carrier earth">
+            <div class="epicycle-center earth">
+                <div class="planet earth">
+                    <!-- Moon orbits Earth -->
+                    <div class="moon-orbit">
+                        <div class="moon"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mars -->
+        <div class="carrier mars">
+            <div class="epicycle-center mars">
+                <div class="planet mars"></div>
+            </div>
+        </div>
+
+        <!-- Jupiter -->
+        <div class="carrier jupiter">
+            <div class="epicycle-center jupiter">
+                <div class="planet jupiter"></div>
+            </div>
+        </div>
+
+        <!-- Saturn -->
+        <div class="carrier saturn">
+            <div class="epicycle-center saturn">
+                <div class="planet saturn"></div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
